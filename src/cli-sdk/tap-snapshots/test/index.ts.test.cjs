@@ -62,6 +62,7 @@ Unknown option '--unknown'. To specify a positional argument starting with a '-'
     --os=<os>
     --otp=<otp>
     --package=<p>
+    --publish-directory=<path>
     --recursive
     --registries=<name=url>
     --registry=<url>
@@ -74,6 +75,7 @@ Unknown option '--unknown'. To specify a positional argument starting with a '-'
     --script-shell=<program>
     --stale-while-revalidate-factor=<n>
     --tag=<tag>
+    --target=<target>
     --version
     --view=<output>
     --workspace=<ws>
@@ -115,6 +117,7 @@ Unknown config option: asdf
     os
     otp
     package
+    publish-directory
     recursive
     registries
     registry
@@ -127,6 +130,7 @@ Unknown config option: asdf
     script-shell
     stale-while-revalidate-factor
     tag
+    target
     version
     view
     workspace

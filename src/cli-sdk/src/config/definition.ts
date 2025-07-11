@@ -420,6 +420,11 @@ export const definition = j
       description:
         'Set to filter the scope of an operation using a DSS Query.',
     },
+    target: {
+      short: 't',
+      description:
+        'Set to select packages using a DSS Query selector.',
+    },
   })
 
   .flag({
@@ -604,6 +609,12 @@ export const definition = j
   .opt({
     otp: {
       description: `Provide an OTP to use when publishing a package.`,
+    },
+    'publish-directory': {
+      hint: 'path',
+      description: `Directory to use for pack and publish operations instead of the current directory.
+                    Similar to pnpm's publishConfig.directory feature.
+                    The directory must exist and nothing will be copied to it.`,
     },
   })
 

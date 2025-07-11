@@ -7,7 +7,6 @@ import type { DashboardTools } from '@/state/types.ts'
 
 vi.mock('react-router', () => ({
   useNavigate: vi.fn(),
-  NavLink: 'gui-nav-link',
 }))
 
 vi.mock('@/utils/dashboard-tools.tsx', () => ({
@@ -43,19 +42,8 @@ vi.mock('@/utils/dashboard-tools.tsx', () => ({
   }),
 }))
 
-vi.mock('@/components/ui/card.tsx', () => ({
-  CardTitle: 'gui-card-title',
-}))
-
 vi.mock('@/components/ui/button.tsx', () => ({
   Button: 'gui-button',
-}))
-
-vi.mock('@/components/ui/tooltip.tsx', () => ({
-  Tooltip: 'gui-tooltip',
-  TooltipContent: 'gui-tooltip-content',
-  TooltipProvider: 'gui-tooltip-provider',
-  TooltipTrigger: 'gui-tooltip-trigger',
 }))
 
 vi.mock('@/components/ui/filter-search.tsx', () => ({
@@ -85,12 +73,12 @@ vi.mock(
   }),
 )
 
-vi.mock('date-fns', () => ({
-  format: () => 'November 1st, 2024 | 06:01 PM',
-}))
-
 vi.mock('lucide-react', () => ({
   Plus: 'gui-plus-icon',
+}))
+
+vi.mock('@/components/dashboard-grid/dashboard-item.tsx', () => ({
+  DashboardItem: 'gui-dashboard-item',
 }))
 
 expect.addSnapshotSerializer({

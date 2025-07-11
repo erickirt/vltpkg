@@ -16,6 +16,7 @@ import LZString from 'lz-string'
 import { Query } from '@vltpkg/query'
 import { SecurityArchive } from '@vltpkg/security-archive'
 import type { DepID } from '@vltpkg/dep-id'
+import { error } from '@vltpkg/error-cause'
 import { commandUsage } from '../config/usage.ts'
 import type { CommandFn, CommandUsage } from '../index.ts'
 import { startGUI } from '../start-gui.ts'
@@ -26,15 +27,19 @@ export const usage: CommandUsage = () =>
     command: 'ls',
     usage: [
       '',
-      '[query | specs] [--view=human | json | mermaid | gui]',
+      '[package-names...] [--view=human | json | mermaid | gui]',
+      '[--scope=<query>] [--target=<query>] [--view=human | json | mermaid | gui]',
     ],
-    description: `List installed dependencies matching given package names or resulting
-      packages from matching a given Dependency Selector Syntax query if one
-      is provided.
+    description: `List installed dependencies matching given package names or query selectors.
 
-      The vlt Dependency Selector Syntax is a CSS-like query language that
-      allows you to filter installed dependencies using a variety of metadata
-      in the form of CSS-like attributes, pseudo selectors & combinators.
+      Package names provided as positional arguments will be used to filter
+      the results to show only dependencies with those names.
+
+      The --scope and --target options accepts DSS query selectors to filter
+      packages. Using --scope, you can specify which packages to treat as the
+      top-level items in the output graph. The --target option allows you to
+      filter what dependencies to include in the output. Using both options
+      allows you to render subgraphs of the dependency graph.
 
       Defaults to listing direct dependencies of a project and any configured
       workspace.`,
@@ -43,22 +48,31 @@ export const usage: CommandUsage = () =>
         description:
           'List direct dependencies of the current project / workspace',
       },
-      '"*"': {
-        description:
-          'List all dependencies for the current project / workspace',
-      },
       'foo bar baz': {
         description: `List all dependencies named 'foo', 'bar', or 'baz'`,
       },
-      [`'[name="@scoped/package"] > *'`]: {
+      '--scope=":root > #dependency-name"': {
         description:
-          'Lists direct dependencies of a specific package',
+          'Defines a direct dependency as the output top-level scope',
       },
-      [`'*:workspace > *:peer'`]: {
+      '--target="*"': {
+        description: 'List all dependencies using a query selector',
+      },
+      '--target=":workspace > *:peer"': {
         description: 'List all peer dependencies of all workspaces',
       },
     },
     options: {
+      scope: {
+        value: '<query>',
+        description:
+          'Query selector to select top-level packages using the DSS query language syntax.',
+      },
+      target: {
+        value: '<query>',
+        description:
+          'Query selector to filter packages using the DSS query language syntax.',
+      },
       view: {
         value: '[human | json | mermaid | gui]',
         description:
@@ -97,16 +111,29 @@ export const command: CommandFn<ListResult> = async conf => {
     loadManifests: true,
   })
 
-  const queryString = conf.positionals
-    .map(k => (/^[@\w-]/.test(k) ? `#${k.replace(/\//, '\\/')}` : k))
+  // Validate positional arguments - only allow package names, not direct queries
+  for (const arg of conf.positionals) {
+    if (!/^[@\w-]/.test(arg)) {
+      throw error(
+        `Direct queries are not supported as positional arguments. Use package names only.`,
+        {
+          code: 'EUSAGE',
+          cause: `Argument '${arg}' appears to be a query syntax. Only package names are allowed as positional arguments.`,
+        },
+      )
+    }
+  }
+
+  const positionalQueryString = conf.positionals
+    .map(k => `#${k.replace(/\//, '\\/')}`)
     .join(', ')
-  const securityArchive =
-    Query.hasSecuritySelectors(queryString) ?
-      await SecurityArchive.start({
-        graph,
-        specOptions: conf.options,
-      })
-    : undefined
+  const targetQueryString = conf.get('target')
+  const queryString = targetQueryString || positionalQueryString
+
+  const securityArchive = await SecurityArchive.start({
+    graph,
+    specOptions: conf.options,
+  })
   const query = new Query({
     graph,
     specOptions: conf.options,
@@ -186,6 +213,8 @@ export const command: CommandFn<ListResult> = async conf => {
     edges,
     nodes,
     queryString: queryString || defaultQueryString,
-    highlightSelection: !!queryString,
+    highlightSelection: !!(
+      targetQueryString || positionalQueryString
+    ),
   }
 }

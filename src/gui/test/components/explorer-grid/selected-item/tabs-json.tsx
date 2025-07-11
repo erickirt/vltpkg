@@ -5,9 +5,9 @@ import { useGraphStore as useStore } from '@/state/index.ts'
 import type { SelectedItemStore } from '@/components/explorer-grid/selected-item/context.tsx'
 import { useSelectedItemStore } from '@/components/explorer-grid/selected-item/context.tsx'
 import {
-  TabsManifestButton,
-  TabsManifestContent,
-} from '@/components/explorer-grid/selected-item/tabs-manifest.tsx'
+  TabsJsonButton,
+  TabsJsonContent,
+} from '@/components/explorer-grid/selected-item/tabs-json.tsx'
 import {
   SELECTED_ITEM,
   SELECTED_ITEM_DETAILS,
@@ -37,15 +37,17 @@ const ITEM_WITH_MANIFEST = {
   },
 } as unknown as GridItemData
 
-vi.mock('lucide-react', () => ({
-  FileJson: 'gui-file-json-icon',
-}))
-
 vi.mock(
   '@/components/explorer-grid/selected-item/context.tsx',
   () => ({
     useSelectedItemStore: vi.fn(),
     SelectedItemProvider: 'gui-selected-item-provider',
+    useTabNavigation: {
+      tab: 'json',
+      subTab: undefined,
+      setActiveTab: vi.fn(),
+      setActiveSubTab: vi.fn(),
+    },
   }),
 )
 
@@ -80,10 +82,6 @@ test('TabsManifestButton renders default', () => {
     manifest: {},
     rawManifest: null,
     insights: undefined,
-    activeTab: 'manifest' as const,
-    activeSubTab: undefined,
-    setActiveSubTab: vi.fn(),
-    setActiveTab: vi.fn(),
     depCount: undefined,
     setDepCount: vi.fn(),
     scannedDeps: undefined,
@@ -105,63 +103,20 @@ test('TabsManifestButton renders default', () => {
   )
 
   const Container = () => {
-    return <TabsManifestButton />
+    return <TabsJsonButton />
   }
 
   const { container } = render(<Container />)
   expect(container.innerHTML).toMatchSnapshot()
 })
 
-test('TabsManifestContent renders an empty state', () => {
-  const mockState = {
-    manifest: null,
-    rawManifest: null,
-    selectedItem: SELECTED_ITEM,
-    ...SELECTED_ITEM_DETAILS,
-    insights: undefined,
-    activeTab: 'manifest' as const,
-    activeSubTab: undefined,
-    setActiveSubTab: vi.fn(),
-    setActiveTab: vi.fn(),
-    depCount: undefined,
-    setDepCount: vi.fn(),
-    scannedDeps: undefined,
-    setScannedDeps: vi.fn(),
-    depsAverageScore: undefined,
-    setDepsAverageScore: vi.fn(),
-    depLicenses: undefined,
-    setDepLicenses: vi.fn(),
-    depWarnings: undefined,
-    setDepWarnings: vi.fn(),
-    duplicatedDeps: undefined,
-    setDuplicatedDeps: vi.fn(),
-    depFunding: undefined,
-    setDepFunding: vi.fn(),
-  } satisfies SelectedItemStore
-
-  vi.mocked(useSelectedItemStore).mockImplementation(selector =>
-    selector(mockState),
-  )
-
-  const Container = () => {
-    return <TabsManifestContent />
-  }
-
-  const { container } = render(<Container />)
-  expect(container.innerHTML).toMatchSnapshot()
-})
-
-test('TabsManifestContent renders with a manifest', () => {
+test('TabsManifestContent renders with a json object', () => {
   const mockState = {
     selectedItem: SELECTED_ITEM,
     ...SELECTED_ITEM_DETAILS,
     insights: undefined,
-    activeTab: 'manifest' as const,
-    activeSubTab: undefined,
-    setActiveSubTab: vi.fn(),
     manifest: MOCK_MANIFEST,
     rawManifest: null,
-    setActiveTab: vi.fn(),
     depCount: undefined,
     setDepCount: vi.fn(),
     scannedDeps: undefined,
@@ -183,7 +138,7 @@ test('TabsManifestContent renders with a manifest', () => {
   )
 
   const Container = () => {
-    return <TabsManifestContent />
+    return <TabsJsonContent />
   }
 
   const { container } = render(<Container />)

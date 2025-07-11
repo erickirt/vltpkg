@@ -30,7 +30,10 @@ exports[`LicensesTabButton renders with license count 1`] = `
 
 exports[`LicensesTabContent renders with an empty state 1`] = `
 
-<gui-tabs-content value="licenses">
+<gui-tabs-content
+  value="licenses"
+  style="opacity: 0; filter: blur(2px);"
+>
   <gui-empty-state
     icon="gui-scale-icon"
     message="No license data was found."
@@ -42,7 +45,10 @@ exports[`LicensesTabContent renders with an empty state 1`] = `
 
 exports[`LicensesTabContent renders with licenses 1`] = `
 
-<gui-tabs-content value="licenses">
+<gui-tabs-content
+  value="licenses"
+  style="opacity: 0; filter: blur(2px);"
+>
   <div class="flex flex-col gap-3 py-4">
     <div class="px-6">
       <div
@@ -203,7 +209,7 @@ exports[`LicensesTabContent renders with licenses 1`] = `
             classname="px-3 py-3 align-top cursor-default capitalize first-of-type:pl-8 last-of-type:pr-8"
             style="width: 60px;"
           >
-            <div class="inline-flex items-center justify-center rounded-full border-[1px] px-3 py-0.5 text-sm bg-red-500/5 dark:bg-red-600/10 hover:bg-red-500/15 border-red-600/80 hover:border-red-500/80 text-red-600 dark:text-red-500">
+            <div class="inline-flex items-center justify-center rounded-full px-3 py-0.5 text-sm bg-red-500/5 dark:bg-red-600/10 hover:bg-red-500/15 border-[1px] border-red-600/80 hover:border-red-500/80 text-red-600 dark:text-red-500">
               high
             </div>
           </gui-table-cell>
@@ -237,7 +243,7 @@ exports[`LicensesTabContent renders with licenses 1`] = `
             classname="px-3 py-3 align-top cursor-default capitalize first-of-type:pl-8 last-of-type:pr-8"
             style="width: 60px;"
           >
-            <div class="inline-flex items-center justify-center rounded-full border-[1px] px-3 py-0.5 text-sm bg-yellow-500/5 dark:bg-yellow-600/10 hover:bg-yellow-500/15 border-yellow-600/80 hover:border-yellow-500/80 text-yellow-700 dark:text-yellow-600">
+            <div class="inline-flex items-center justify-center rounded-full px-3 py-0.5 text-sm bg-yellow-500/5 dark:bg-yellow-600/10 hover:bg-yellow-500/15 border-[1px] border-yellow-600/80 hover:border-yellow-500/80 text-yellow-700 dark:text-yellow-600">
               medium
             </div>
           </gui-table-cell>
@@ -271,7 +277,7 @@ exports[`LicensesTabContent renders with licenses 1`] = `
             classname="px-3 py-3 align-top cursor-default capitalize first-of-type:pl-8 last-of-type:pr-8"
             style="width: 60px;"
           >
-            <div class="inline-flex items-center justify-center rounded-full border-[1px] px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-500">
+            <div class="inline-flex items-center justify-center rounded-full px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-[1px] border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-400">
               low
             </div>
           </gui-table-cell>
@@ -305,7 +311,7 @@ exports[`LicensesTabContent renders with licenses 1`] = `
             classname="px-3 py-3 align-top cursor-default capitalize first-of-type:pl-8 last-of-type:pr-8"
             style="width: 60px;"
           >
-            <div class="inline-flex items-center justify-center rounded-full border-[1px] px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-500">
+            <div class="inline-flex items-center justify-center rounded-full px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-[1px] border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-400">
               low
             </div>
           </gui-table-cell>
@@ -339,7 +345,7 @@ exports[`LicensesTabContent renders with licenses 1`] = `
             classname="px-3 py-3 align-top cursor-default capitalize first-of-type:pl-8 last-of-type:pr-8"
             style="width: 60px;"
           >
-            <div class="inline-flex items-center justify-center rounded-full border-[1px] px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-500">
+            <div class="inline-flex items-center justify-center rounded-full px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-[1px] border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-400">
               low
             </div>
           </gui-table-cell>
@@ -373,7 +379,7 @@ exports[`LicensesTabContent renders with licenses 1`] = `
             classname="px-3 py-3 align-top cursor-default capitalize first-of-type:pl-8 last-of-type:pr-8"
             style="width: 60px;"
           >
-            <div class="inline-flex items-center justify-center rounded-full border-[1px] px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-500">
+            <div class="inline-flex items-center justify-center rounded-full px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-[1px] border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-400">
               low
             </div>
           </gui-table-cell>
@@ -407,7 +413,7 @@ exports[`LicensesTabContent renders with licenses 1`] = `
             classname="px-3 py-3 align-top cursor-default capitalize first-of-type:pl-8 last-of-type:pr-8"
             style="width: 60px;"
           >
-            <div class="inline-flex items-center justify-center rounded-full border-[1px] px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-500">
+            <div class="inline-flex items-center justify-center rounded-full px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-[1px] border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-400">
               low
             </div>
           </gui-table-cell>
@@ -441,7 +447,7 @@ exports[`LicensesTabContent renders with licenses 1`] = `
             classname="px-3 py-3 align-top cursor-default capitalize first-of-type:pl-8 last-of-type:pr-8"
             style="width: 60px;"
           >
-            <div class="inline-flex items-center justify-center rounded-full border-[1px] px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-500">
+            <div class="inline-flex items-center justify-center rounded-full px-3 py-0.5 text-sm bg-gray-500/5 dark:bg-gray-600/10 hover:bg-gray-500/15 border-[1px] border-gray-600/80 hover:border-gray-500/80 text-gray-600 dark:text-gray-400">
               low
             </div>
           </gui-table-cell>

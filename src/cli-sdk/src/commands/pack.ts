@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import assert from 'node:assert'
+import { run } from '@vltpkg/run'
 import { commandUsage } from '../config/usage.ts'
 import type { CommandFn, CommandUsage } from '../index.ts'
 import { packTarball } from '../pack-tarball.ts'
@@ -38,15 +39,15 @@ type CommandResult = {
 export const views = {
   human: r => {
     const lines = [
-      `📦 ${r.name}@${r.version}`,
-      `📄 ${r.filename}`,
-      `📁 ${r.files.length} files`,
+      `📦 Package: ${r.id}`,
+      `📄 File: ${r.filename}`,
+      `📁 ${r.files.length} Files`,
       ...r.files.map(f => `  - ${f}`),
-      `📊 package size: ${prettyBytes(r.size)}`,
-      `📂 unpacked size: ${prettyBytes(r.unpackedSize)}`,
+      `📊 Package Size: ${prettyBytes(r.size)}`,
+      `📂 Unpacked Size: ${prettyBytes(r.unpackedSize)}`,
     ]
-    if (r.shasum) lines.push(`🔒 shasum: ${r.shasum}`)
-    if (r.integrity) lines.push(`🔐 integrity: ${r.integrity}`)
+    if (r.shasum) lines.push(`🔒 Shasum: ${r.shasum}`)
+    if (r.integrity) lines.push(`🔐 Integrity: ${r.integrity}`)
     return lines.join('\n')
   },
   json: r => r,
@@ -58,6 +59,26 @@ export const command: CommandFn<CommandResult> = async conf => {
   const manifestDir = dirname(manifestPath)
   const manifest = conf.options.packageJson.read(manifestDir)
 
+  const isDryRun = conf.options['dry-run']
+  const runOptions = {
+    cwd: manifestDir,
+    projectRoot: conf.projectRoot,
+    packageJson: conf.options.packageJson,
+    manifest,
+    ignoreMissing: true,
+    ignorePrePost: true,
+  }
+
+  await run({
+    ...runOptions,
+    arg0: 'prepack',
+  })
+
+  await run({
+    ...runOptions,
+    arg0: 'prepare',
+  })
+
   const {
     name,
     version,
@@ -67,11 +88,16 @@ export const command: CommandFn<CommandResult> = async conf => {
     files,
     integrity,
     shasum,
-  } = await packTarball(manifest, manifestDir)
+  } = await packTarball(manifest, manifestDir, conf)
 
-  if (!conf.options['dry-run']) {
+  if (!isDryRun) {
     await writeFile(join(manifestDir, filename), tarballData)
   }
+
+  await run({
+    ...runOptions,
+    arg0: 'postpack',
+  })
 
   return {
     id: `${name}@${version}`,

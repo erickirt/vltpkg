@@ -1,11 +1,16 @@
-import type { Repository, Manifest, Packument } from '@vltpkg/types'
+import { normalizeManifest } from '@vltpkg/types'
 import { compare, gt, prerelease } from '@vltpkg/semver'
-import { isRecord } from '@/utils/typeguards.ts'
-import type { Spec } from '@vltpkg/spec/browser'
 import {
   getRepoOrigin,
   getRepositoryApiUrl,
 } from '@/utils/get-repo-url.ts'
+import type { Spec } from '@vltpkg/spec/browser'
+import type {
+  Repository,
+  Manifest,
+  Packument,
+  NormalizedContributor,
+} from '@vltpkg/types'
 
 export type Semver = `${number}.${number}.${number}`
 
@@ -70,9 +75,7 @@ export type Version = {
   gitHead?: string
 }
 
-export type Contributor = {
-  name?: string
-  email?: string
+export type Contributor = NormalizedContributor & {
   avatar?: string
 }
 
@@ -129,6 +132,20 @@ export const readRepository = (
   if (repository.url) {
     return repository.url
   }
+}
+
+const getContributorAvatars = async (
+  mani: Manifest,
+): Promise<Contributor[] | undefined> => {
+  if (!mani.contributors || mani.contributors.length === 0)
+    return undefined
+  const contributors = await Promise.all(
+    mani.contributors.map(async contributor => ({
+      ...contributor,
+      avatar: await retrieveAvatar(contributor.email || ''),
+    })),
+  )
+  return contributors
 }
 
 export const retrieveAvatar = async (
@@ -271,34 +288,6 @@ export async function* fetchDetails(
       })
       .catch(() => ({}))
 
-  const fetchContributors = async (): Promise<DetailsInfo> => {
-    if (!manifest?.contributors) return {}
-
-    const contributors = await Promise.all(
-      manifest.contributors.map(async contributor => {
-        if (isRecord(contributor)) {
-          const avatar = await retrieveAvatar(contributor.email || '')
-          return {
-            name: contributor.name,
-            email: contributor.email,
-            avatar,
-          }
-        } else {
-          const emailMatch = EMAIL_PATTERN.exec(contributor)
-          const nameMatch = NAME_PATTERN.exec(contributor)
-          const avatar = await retrieveAvatar(emailMatch?.[1] || '')
-          return {
-            name: nameMatch?.[0] || '',
-            email: emailMatch?.[1] || '',
-            avatar,
-          }
-        }
-      }),
-    )
-
-    return { contributors }
-  }
-
   // favicon requests have a guard against duplicate requests
   // since we retry once we fetch the manifest from the registry
   const seenFavIconRequests = new Set<string>()
@@ -327,6 +316,15 @@ export async function* fetchDetails(
     if (maniAuthor) {
       trackPromise(Promise.resolve({ author: maniAuthor }))
     }
+  }
+
+  // fetch contributor avatars from the in-memory manifest
+  if (manifest) {
+    trackPromise(
+      getContributorAvatars(manifest).then(contributors => ({
+        ...(contributors && { contributors }),
+      })),
+    )
   }
 
   // if the spec is a git spec, use its remote as the repository url reference
@@ -362,6 +360,7 @@ export async function* fetchDetails(
       fetch(String(url), { signal })
         .then(res => res.json())
         .then((mani: Manifest & { _npmUser?: AuthorInfo }) => {
+          mani = normalizeManifest(mani)
           // retries favicon retrieval in case it wasn't found before
           if (!githubAPI && mani.repository) {
             const repo = readRepository(mani.repository)
@@ -418,6 +417,7 @@ export async function* fetchDetails(
           const versions = Object.entries(packu.versions)
             .sort((a, b) => compare(b[0], a[0]))
             .map(async ([version, mani]) => {
+              mani = normalizeManifest(mani)
               const email = (
                 mani as Manifest & {
                   _npmUser?: {
@@ -479,8 +479,6 @@ export async function* fetchDetails(
     trackPromise(fetchDownloadsLastYear())
   }
 
-  // retrieve contributors from the manifest
-  trackPromise(fetchContributors())
   const repo =
     manifest?.repository && readRepository(manifest.repository)
   const repoDetails = repo && getRepoOrigin(repo)

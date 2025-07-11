@@ -1,3 +1,4 @@
+import { baseDepID } from '@vltpkg/dep-id/browser'
 import { longDependencyTypes, shorten } from '@vltpkg/graph/browser'
 import { Spec } from '@vltpkg/spec/browser'
 import { useGraphStore } from '@/state/index.ts'
@@ -5,9 +6,11 @@ import { Item } from '@/components/explorer-grid/selected-item/item.tsx'
 import { GridHeader } from '@/components/explorer-grid/header.tsx'
 import { DependencySideBar } from '@/components/explorer-grid/dependency-sidebar/index.tsx'
 import { OverviewSidebar } from '@/components/explorer-grid/overview-sidebar/index.tsx'
+import { updateDependentsItem } from '@/lib/update-dependents-item.ts'
 
 import type { GridItemData } from '@/components/explorer-grid/types.ts'
 import type { QueryResponseNode } from '@vltpkg/query'
+import type { DepID } from '@vltpkg/dep-id/browser'
 
 const getParent = (
   edge?: GridItemData,
@@ -56,19 +59,22 @@ const getWorkspaceItems = (item?: GridItemData): GridItemData[] => {
   return items
 }
 
-const getDependentItems = (
+export const getDependentItems = (
   node?: QueryResponseNode,
   parent?: QueryResponseNode,
 ) => {
+  const seenIds = new Set<DepID>()
   const items: GridItemData[] = []
   if (!node) return items
   for (const edge of Array.from(node.edgesIn)) {
-    if (edge.from === parent) continue
+    const id = baseDepID(edge.from.id)
+    if (edge.from === parent || seenIds.has(id)) continue
+    seenIds.add(id)
     const title = `${edge.name}@${edge.spec.bareSpec}`
 
     items.push({
       ...edge,
-      id: edge.from.id,
+      id,
       title,
       version: edge.from.version || '',
       name: edge.from.name || '',
@@ -169,43 +175,12 @@ export const SelectedItem = ({ item }: { item: GridItemData }) => {
     count,
     item.to,
   )
-  const workspaceClick = (item: GridItemData) => () => {
-    const itemQuery = getItemQuery(item)
-    if (itemQuery) {
-      updateQuery(`:project${itemQuery}`)
-    }
-    return undefined
-  }
-  const dependentsClick =
-    (item: GridItemData, isParent?: boolean) => () => {
-      if (item.from?.mainImporter) {
-        updateQuery(`:root`)
-        return
-      }
-      const selectedName = item.to?.name ? `#${item.to.name}` : ''
-      const selectedVersion =
-        item.to?.version ? `:v(${item.to.version})` : ''
-      const newQuery =
-        isParent &&
-        (query.endsWith(`> ${selectedName}${selectedVersion}`) ||
-          query.endsWith(`> ${selectedName}`)) &&
-        query.slice(0, query.lastIndexOf('>'))
-      if (newQuery) {
-        updateQuery(newQuery.trim())
-      } else {
-        // use version on the parent node if there are multiple nodes in the graph with the same name
-        const useVersion =
-          item.from ?
-            [...item.from.graph.nodes.values()].filter(
-              n => n.name === item.from?.name,
-            ).length > 1
-          : false
-        const name = item.from?.name ? `#${item.from.name}` : ''
-        const version =
-          useVersion && item.from?.version ?
-            `:v(${item.from.version})`
-          : ''
-        updateQuery(`${name}${version}`.trim())
+  const workspaceClick =
+    ({ item }: { item: GridItemData }) =>
+    () => {
+      const itemQuery = getItemQuery(item)
+      if (itemQuery) {
+        updateQuery(`:project${itemQuery}`)
       }
       return undefined
     }
@@ -236,7 +211,10 @@ export const SelectedItem = ({ item }: { item: GridItemData }) => {
           workspaces={workspaces}
           dependents={dependents}
           onWorkspaceClick={workspaceClick}
-          onDependentClick={dependentsClick}
+          onDependentClick={updateDependentsItem({
+            query,
+            updateQuery,
+          })}
         />
       </div>
       <div className="col-span-4">

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useGraphStore } from '@/state/index.ts'
 import { useSelectedItemStore } from '@/components/explorer-grid/selected-item/context.tsx'
-import { TabsTrigger, TabsContent } from '@/components/ui/tabs.tsx'
+import { TabsTrigger } from '@/components/ui/tabs.tsx'
 import {
   Table,
   TableBody,
@@ -19,16 +19,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import type { ColumnDef } from '@tanstack/react-table'
 import { cn } from '@/lib/utils.ts'
 import {
   SortingHeader,
   tableClassNames,
 } from '@/components/explorer-grid/selected-item/tabs-dependencies/table-utilities.tsx'
-import {
-  InsightBadge,
-  getAlertColor,
-} from '@/components/explorer-grid/selected-item/insight-badge.tsx'
+import { InsightBadge } from '@/components/explorer-grid/selected-item/insight-badge.tsx'
 import {
   getScoreColor,
   scoreColors,
@@ -36,7 +32,12 @@ import {
 import { Warning } from '@/components/explorer-grid/selected-item/tabs-dependencies/warning.tsx'
 import { DataBadge } from '@/components/ui/data-badge.tsx'
 import { toHumanString } from '@/utils/human-string.ts'
+import {
+  MotionTabsContent,
+  tabMotion,
+} from '@/components/explorer-grid/selected-item/helpers.tsx'
 
+import type { ColumnDef } from '@tanstack/react-table'
 import type { DepWarning } from '@/components/explorer-grid/selected-item/context.tsx'
 
 export const InsightsTabButton = () => {
@@ -151,7 +152,7 @@ export const InsightsTabContent = () => {
         ),
         cell: ({ row }) => (
           <InsightBadge
-            color={getAlertColor(row.original.severity)}
+            color={row.original.severity}
             className="lowercase">
             {row.original.selector}
           </InsightBadge>
@@ -218,7 +219,7 @@ export const InsightsTabContent = () => {
     !depCount || !scannedDeps ? 0 : depCount - scannedDeps
 
   return (
-    <TabsContent value="insights">
+    <MotionTabsContent {...tabMotion} value="insights">
       {depCount && depCount > 0 ?
         <div className="flex flex-col gap-3 py-4">
           <div
@@ -367,6 +368,6 @@ export const InsightsTabContent = () => {
           message="No insights were available."
         />
       }
-    </TabsContent>
+    </MotionTabsContent>
   )
 }

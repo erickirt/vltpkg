@@ -19,10 +19,11 @@ import { Queries } from '@/app/queries.tsx'
 
 /** Explorer Tabs */
 import { OverviewTabContent } from '@/components/explorer-grid/selected-item/tabs-overview.tsx'
-import { TabsManifestContent } from '@/components/explorer-grid/selected-item/tabs-manifest.tsx'
+import { TabsJsonContent } from '@/components/explorer-grid/selected-item/tabs-json.tsx'
 import { InsightTabContent } from '@/components/explorer-grid/selected-item/tabs-insight.tsx'
 import { DependenciesTabContent } from '@/components/explorer-grid/selected-item/tabs-dependencies/index.tsx'
 import { VersionsTabContent } from '@/components/explorer-grid/selected-item/tabs-versions.tsx'
+import { ContributorTabContent } from '@/components/explorer-grid/selected-item/tabs-contributors.tsx'
 
 /** Dependencies SubTabs */
 import { InsightsTabContent } from '@/components/explorer-grid/selected-item/tabs-dependencies/tabs-insights.tsx'
@@ -39,28 +40,38 @@ import { encodeCompressedQuery } from '@/lib/compress-query.ts'
 import type {
   Tab,
   SubTabDependencies,
-} from './components/explorer-grid/selected-item/context'
+} from '@/components/explorer-grid/selected-item/context.tsx'
 
 const TabRouter = () => {
-  const { tab } = useParams<{ tab: Tab }>()
+  const { tab } = useParams<{
+    query: string
+    tab: Tab
+    subTab?: SubTabDependencies
+  }>()
   switch (tab) {
     case 'overview':
       return <OverviewTabContent />
-    case 'manifest':
-      return <TabsManifestContent />
+    case 'json':
+      return <TabsJsonContent />
     case 'versions':
       return <VersionsTabContent />
     case 'insights':
       return <InsightTabContent />
     case 'dependencies':
       return <DependenciesTabContent />
+    case 'contributors':
+      return <ContributorTabContent />
     default:
       return <Navigate to="overview" replace />
   }
 }
 
 const SubTabRouter = () => {
-  const { subTab } = useParams<{ subTab: SubTabDependencies }>()
+  const { subTab } = useParams<{
+    query: string
+    tab: Tab
+    subTab?: SubTabDependencies
+  }>()
   switch (subTab) {
     case 'insights':
       return <InsightsTabContent />
@@ -105,15 +116,7 @@ export const routes: RouteObject[] = [
           {
             path: ':tab',
             element: <TabRouter />,
-          },
-          {
-            path: 'dependencies',
-            element: <DependenciesTabContent />,
             children: [
-              {
-                index: true,
-                element: <Navigate to="insights" replace />,
-              },
               {
                 path: ':subTab',
                 element: <SubTabRouter />,

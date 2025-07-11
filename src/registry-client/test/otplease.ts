@@ -24,6 +24,7 @@ class MockInterface {
   async question(text: string) {
     return text
   }
+  close() {}
 }
 
 const mockClient = {
@@ -78,7 +79,7 @@ t.test('unknown www-authenticate challenges', async t => {
         'www-authenticate': 'otp',
       },
       body: {
-        json: () => ({}),
+        json: async () => ({}),
       },
     } as unknown as Dispatcher.ResponseData),
     {
@@ -93,7 +94,7 @@ t.test('www-authenticate otp challenge', async t => {
       'www-authenticate': 'otp',
     },
     body: {
-      json: () => ({
+      json: async () => ({
         loginUrl: 'login url',
         doneUrl: 'done url',
       }),
@@ -112,7 +113,7 @@ t.test('npm-notice prompting for OTP', async t => {
         'Open {login-url} to use your security key for authentication or enter OTP from your authenticator app',
     },
     body: {
-      json: () => ({}),
+      json: async () => ({}),
     },
   } as unknown as Dispatcher.ResponseData)
   t.strictSame(doneUrlsOpened, [])
@@ -129,7 +130,7 @@ t.test('body prompting for OTP', async t => {
   const resp = {
     headers: {},
     body: {
-      text: () => 'oNe-TiME pAsS',
+      text: async () => 'oNe-TiME pAsS',
     },
   } as unknown as Dispatcher.ResponseData
   const opts = await otplease(mockClient, {}, resp)

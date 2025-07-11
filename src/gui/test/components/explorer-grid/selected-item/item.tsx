@@ -28,6 +28,12 @@ vi.mock(
   () => ({
     useSelectedItemStore: vi.fn(),
     SelectedItemProvider: 'gui-selected-item-provider',
+    useTabNavigation: vi.fn(() => ({
+      tab: 'overview',
+      subTab: undefined,
+      setActiveTab: vi.fn(),
+      setActiveSubTab: vi.fn(),
+    })),
   }),
 )
 
@@ -56,9 +62,9 @@ vi.mock(
 )
 
 vi.mock(
-  '@/components/explorer-grid/selected-item/tabs-manifest.tsx',
+  '@/components/explorer-grid/selected-item/tabs-json.tsx',
   () => ({
-    TabsManifestButton: 'gui-manifest-tab-button',
+    TabsJsonButton: 'gui-json-tab-button',
     TabsManifestContent: 'gui-manifest-tab-content',
   }),
 )
@@ -92,10 +98,6 @@ afterEach(() => {
 test('Item renders with the default structure', () => {
   vi.mocked(useSelectedItemStore).mockReturnValue({
     selectedItem: SELECTED_ITEM,
-    activeTab: 'insights',
-    activeSubTab: undefined,
-    setActiveSubTab: vi.fn(),
-    setActiveTab: vi.fn(),
     manifest: null,
     rawManifest: null,
     packageScore: undefined,
@@ -132,10 +134,6 @@ test('Item renders with the default structure', () => {
 test('Item renders connection lines', () => {
   vi.mocked(useSelectedItemStore).mockReturnValue({
     selectedItem: SELECTED_ITEM,
-    activeTab: 'insights',
-    activeSubTab: undefined,
-    setActiveSubTab: vi.fn(),
-    setActiveTab: vi.fn(),
     manifest: null,
     rawManifest: null,
     packageScore: undefined,

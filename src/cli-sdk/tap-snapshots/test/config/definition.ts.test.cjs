@@ -272,6 +272,11 @@ Object {
     "hint": "p",
     "type": "string",
   },
+  "publish-directory": Object {
+    "description": "Directory to use for pack and publish operations instead of the current directory. Similar to pnpm's publishConfig.directory feature. The directory must exist and nothing will be copied to it.",
+    "hint": "path",
+    "type": "string",
+  },
   "recursive": Object {
     "description": String(
       Run an operation across multiple workspaces.
@@ -378,6 +383,11 @@ Object {
     "description": "Default \`dist-tag\` to install or publish",
     "type": "string",
   },
+  "target": Object {
+    "description": "Set to select packages using a DSS Query selector.",
+    "short": "t",
+    "type": "string",
+  },
   "version": Object {
     "description": "Print the version",
     "short": "v",
@@ -464,6 +474,7 @@ Array [
   "--os=<os>",
   "--otp=<otp>",
   "--package=<p>",
+  "--publish-directory=<path>",
   "--recursive",
   "--registries=<name=url>",
   "--registry=<url>",
@@ -476,6 +487,7 @@ Array [
   "--script-shell=<program>",
   "--stale-while-revalidate-factor=<n>",
   "--tag=<tag>",
+  "--target=<target>",
   "--version",
   "--view=<output>",
   "--workspace=<ws>",
@@ -514,6 +526,7 @@ Array [
   "os",
   "otp",
   "package",
+  "publish-directory",
   "recursive",
   "registries",
   "registry",
@@ -526,6 +539,7 @@ Array [
   "script-shell",
   "stale-while-revalidate-factor",
   "tag",
+  "target",
   "version",
   "view",
   "workspace",

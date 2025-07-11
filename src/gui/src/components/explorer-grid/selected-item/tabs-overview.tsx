@@ -1,4 +1,4 @@
-import { TabsTrigger, TabsContent } from '@/components/ui/tabs.tsx'
+import { TabsTrigger } from '@/components/ui/tabs.tsx'
 import { useSelectedItemStore } from '@/components/explorer-grid/selected-item/context.tsx'
 import Markdown from 'react-markdown'
 import {
@@ -13,15 +13,14 @@ import {
 } from 'lucide-react'
 import { DataBadge } from '@/components/ui/data-badge.tsx'
 import { Link } from '@/components/ui/link.tsx'
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from '@radix-ui/react-avatar'
 import { toHumanNumber } from '@/utils/human-number.ts'
 import { Github } from '@/components/icons/index.ts'
 import { getRepositoryUrl } from '@/utils/get-repo-url.ts'
-import type { Contributor } from '@/lib/external-info.ts'
+import { ContributorList } from '@/components/explorer-grid/selected-item/tabs-contributors.tsx'
+import {
+  MotionTabsContent,
+  tabMotion,
+} from '@/components/explorer-grid/selected-item/helpers.tsx'
 
 export const OverviewTabButton = () => {
   return (
@@ -209,7 +208,8 @@ export const OverviewTabContent = () => {
     : []
 
   return (
-    <TabsContent
+    <MotionTabsContent
+      {...tabMotion}
       value="overview"
       className="divide-x-none group flex grid-cols-12 flex-col divide-muted xl:grid xl:divide-x-[1px] [&>aside]:border-b-[1px] [&>aside]:border-red-500 xl:[&>aside]:border-b-[0px]">
       <div className="order-2 flex flex-col gap-4 xl:order-1 xl:col-span-12 xl:group-[&:has(aside)]:col-span-8">
@@ -246,61 +246,7 @@ export const OverviewTabContent = () => {
         )}
       </div>
       <TabContentAside />
-    </TabsContent>
-  )
-}
-
-const Contributor = ({
-  contributor: { name, email, avatar },
-}: {
-  contributor: Contributor
-}) => {
-  return (
-    <div className="flex cursor-default gap-2">
-      <Avatar className="size-9">
-        {avatar && (
-          <AvatarImage
-            className="size-9 rounded-full outline outline-[1px] outline-neutral-200 dark:outline-neutral-700"
-            src={avatar}
-          />
-        )}
-        <AvatarFallback className="flex aspect-square size-9 items-center justify-center">
-          <div className="h-full w-full rounded-full bg-gradient-to-t from-neutral-200 to-neutral-400 dark:from-neutral-500 dark:to-neutral-800" />
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex flex-col justify-center text-sm text-foreground">
-        <p className="font-medium text-neutral-900 dark:text-neutral-200">
-          {name}
-        </p>
-        {email && (
-          <p className="text-xs text-muted-foreground">{email}</p>
-        )}
-      </div>
-    </div>
-  )
-}
-
-const ContributorList = () => {
-  const contributors = useSelectedItemStore(
-    state => state.contributors,
-  )
-
-  if (!contributors?.length) return null
-
-  return (
-    <div className="flex cursor-default flex-col gap-2 px-6 pb-4">
-      <h4 className="text-sm font-medium capitalize text-muted-foreground">
-        Contributors
-      </h4>
-      <div className="flex flex-wrap gap-x-8 gap-y-5">
-        {contributors.map((contributor, idx) => (
-          <Contributor
-            key={`contributor-${idx}`}
-            contributor={contributor}
-          />
-        ))}
-      </div>
-    </div>
+    </MotionTabsContent>
   )
 }
 

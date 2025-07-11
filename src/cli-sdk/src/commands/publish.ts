@@ -1,6 +1,7 @@
 import { error } from '@vltpkg/error-cause'
 import { RegistryClient } from '@vltpkg/registry-client'
 import type { CacheEntry } from '@vltpkg/registry-client'
+import { run } from '@vltpkg/run'
 import { commandUsage } from '../config/usage.ts'
 import type { CommandFn, CommandUsage } from '../index.ts'
 import { packTarball } from '../pack-tarball.ts'
@@ -51,17 +52,16 @@ export type CommandResult = {
 export const views = {
   human: r => {
     const lines = [
-      `✅ Published ${r.name}@${r.version}`,
       `📦 Package: ${r.id}`,
       `🏷️ Tag: ${r.tag}`,
       `📡 Registry: ${r.registry}`,
-      `📁 ${r.files.length} files`,
+      `📁 ${r.files.length} Files`,
       ...r.files.map(f => `  - ${f}`),
-      `📊 package size: ${prettyBytes(r.size)}`,
-      `📂 unpacked size: ${prettyBytes(r.unpackedSize)}`,
+      `📊 Package Size: ${prettyBytes(r.size)}`,
+      `📂 Unpacked Size: ${prettyBytes(r.unpackedSize)}`,
     ]
-    if (r.shasum) lines.push(`🔒 shasum: ${r.shasum}`)
-    if (r.integrity) lines.push(`🔐 integrity: ${r.integrity}`)
+    if (r.shasum) lines.push(`🔒 Shasum: ${r.shasum}`)
+    if (r.integrity) lines.push(`🔐 Integrity: ${r.integrity}`)
 
     return lines.join('\n')
   },
@@ -80,17 +80,6 @@ export const command: CommandFn<CommandResult> = async conf => {
   )
 
   const {
-    name,
-    version,
-    filename,
-    tarballData,
-    unpackedSize,
-    files,
-    integrity,
-    shasum,
-  } = await packTarball(manifest, manifestDir)
-
-  const {
     tag = 'latest',
     access,
     registry,
@@ -98,6 +87,56 @@ export const command: CommandFn<CommandResult> = async conf => {
     otp,
   } = conf.options
   const registryUrl = new URL(registry)
+
+  const runOptions = {
+    cwd: manifestDir,
+    projectRoot: conf.projectRoot,
+    packageJson: conf.options.packageJson,
+    manifest,
+    ignoreMissing: true,
+    ignorePrePost: true,
+  }
+
+  await run({
+    ...runOptions,
+    arg0: 'prepublishOnly',
+  })
+
+  await run({
+    ...runOptions,
+    arg0: 'prepublish',
+  })
+
+  await run({
+    ...runOptions,
+    arg0: 'prepack',
+  })
+
+  await run({
+    ...runOptions,
+    arg0: 'prepare',
+  })
+
+  const {
+    name,
+    version,
+    tarballName,
+    tarballData,
+    unpackedSize,
+    files,
+    integrity,
+    shasum,
+  } = await packTarball(manifest, manifestDir, conf)
+
+  await run({
+    ...runOptions,
+    arg0: 'postpack',
+  })
+
+  await run({
+    ...runOptions,
+    arg0: 'publish',
+  })
 
   const publishMetadata = {
     _id: name,
@@ -115,13 +154,14 @@ export const command: CommandFn<CommandResult> = async conf => {
           ...manifest.dist,
           integrity,
           shasum,
-          tarball: new URL(`${name}/-/${filename}`, registryUrl).href,
+          tarball: new URL(`${name}/-/${tarballName}`, registryUrl)
+            .href,
         },
       },
     },
     access,
     _attachments: {
-      [filename]: {
+      [tarballName]: {
         content_type: 'application/octet-stream',
         data: tarballData.toString('base64'),
         length: tarballData.length,
@@ -157,10 +197,16 @@ export const command: CommandFn<CommandResult> = async conf => {
 
     if (response.statusCode !== 200 && response.statusCode !== 201) {
       throw error('Failed to publish package', {
+        url: publishUrl,
         response,
       })
     }
   }
+
+  await run({
+    ...runOptions,
+    arg0: 'postpublish',
+  })
 
   return {
     id: `${name}@${version}`,

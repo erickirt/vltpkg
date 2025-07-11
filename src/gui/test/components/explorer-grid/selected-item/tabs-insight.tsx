@@ -38,13 +38,12 @@ vi.mock(
   () => ({
     useSelectedItemStore: vi.fn(),
     SelectedItemProvider: 'gui-selected-item-provider',
-  }),
-)
-
-vi.mock(
-  '@/components/explorer-grid/selected-item/insights.tsx',
-  () => ({
-    getSecurityAlerts: vi.fn(),
+    useTabNavigation: {
+      tab: 'insights',
+      subTab: undefined,
+      setActiveTab: vi.fn(),
+      setActiveSubTab: vi.fn(),
+    },
   }),
 )
 
@@ -59,15 +58,9 @@ vi.mock('@/components/ui/tabs.tsx', () => ({
 
 vi.mock(
   '@/components/explorer-grid/selected-item/insight-badge.tsx',
-  async () => {
-    const actual = await import(
-      '@/components/explorer-grid/selected-item/insight-badge.tsx'
-    )
-    return {
-      ...actual,
-      InsightBadge: 'gui-insight-badge',
-    }
-  },
+  () => ({
+    InsightBadge: 'gui-insight-badge',
+  }),
 )
 
 vi.mock('lucide-react', () => ({
@@ -122,10 +115,6 @@ test('InsightTabContent renders an empty state', () => {
     insights: undefined,
     manifest: null,
     rawManifest: null,
-    activeTab: 'insights' as const,
-    activeSubTab: undefined,
-    setActiveSubTab: vi.fn(),
-    setActiveTab: vi.fn(),
     depCount: undefined,
     setDepCount: vi.fn(),
     scannedDeps: undefined,
@@ -161,10 +150,6 @@ test('InsightTabContent renders with insights', () => {
     insights: MOCK_INSIGHTS,
     manifest: null,
     rawManifest: null,
-    activeTab: 'insights' as const,
-    activeSubTab: undefined,
-    setActiveSubTab: vi.fn(),
-    setActiveTab: vi.fn(),
     depCount: undefined,
     setDepCount: vi.fn(),
     scannedDeps: undefined,
@@ -200,11 +185,7 @@ test('InsightTabContent renders with no insights but a package score', () => {
     manifest: null,
     rawManifest: null,
     insights: undefined,
-    activeTab: 'insights' as const,
-    activeSubTab: undefined,
-    setActiveSubTab: vi.fn(),
     packageScore: MOCK_PACKAGE_SCORE,
-    setActiveTab: vi.fn(),
     depCount: undefined,
     setDepCount: vi.fn(),
     scannedDeps: undefined,
@@ -238,12 +219,8 @@ test('InsightTabButton renders default', () => {
     selectedItem: SELECTED_ITEM,
     ...SELECTED_ITEM_DETAILS,
     insights: undefined,
-    activeSubTab: undefined,
-    setActiveSubTab: vi.fn(),
     manifest: null,
     rawManifest: null,
-    activeTab: 'insights' as const,
-    setActiveTab: vi.fn(),
     depCount: undefined,
     setDepCount: vi.fn(),
     scannedDeps: undefined,
